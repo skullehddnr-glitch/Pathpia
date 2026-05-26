@@ -1,0 +1,4 @@
+name,type,prereq,benefit,source,url
+Dodge,Combat,Dex 13,+1 dodge bonus to AC.,Example,
+Power Attack,Combat,"Str 13, BAB +1","Take an attack penalty to gain extra melee damage.",Example,
+Weapon Finesse,Combat,—,Use Dexterity instead of Strength on eligible melee attack rolls.,Example,
