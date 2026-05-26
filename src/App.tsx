@@ -181,6 +181,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>("basic");
   const [name, setName] = useState("Aldren Demo");
   const [raceId, setRaceId] = useState("human");
+  const [raceAbilityChoices, setRaceAbilityChoices] = useState<Record<string, Ability>>({});
   const [startingClassId, setStartingClassId] = useState("fighter");
   const [classLevels, setClassLevels] = useState<Record<string, number>>(() => makeDefaultClassLevels());
   const [statIncreases, setStatIncreases] = useState<Record<number, Ability>>({});
@@ -208,6 +209,7 @@ export default function App() {
   });
 
   const race = RACES.find((item) => item.id === raceId) || RACES[0];
+  const raceAbilityChoiceList = race.abilityChoices || [];
   const armor = ARMORS.find((item) => item.id === selectedArmorId) || ARMORS[0];
   const weapon = WEAPONS.find((item) => item.id === selectedWeaponId) || WEAPONS[0];
   const totalLevel = getTotalLevel(classLevels);
@@ -241,6 +243,15 @@ export default function App() {
       wis: race.abilityBonuses.wis || 0,
       cha: race.abilityBonuses.cha || 0,
     };
+
+    for (const choice of race.abilityChoices || []) {
+      const key = race.id + ":" + choice.id;
+      const selectedAbility =
+        raceAbilityChoices[key] || choice.defaultAbility || choice.options[0];
+
+      raceBonuses[selectedAbility] =
+        (raceBonuses[selectedAbility] || 0) + choice.bonus;
+    }
 
     const levelBonuses: Record<Ability, number> = {
       str: countLevelIncreases(statIncreases, "str"),
@@ -406,6 +417,7 @@ export default function App() {
     chosenFeatIds.join(","),
     powerAttackOn,
     statIncreases,
+    raceAbilityChoices,
   ]);
 
   function selectStartingClass(classId: string) {
@@ -441,6 +453,13 @@ export default function App() {
         [classId]: 1,
       };
     });
+  }
+
+  function changeRaceAbilityChoice(choiceId: string, ability: Ability) {
+    setRaceAbilityChoices((prev) => ({
+      ...prev,
+      [race.id + ":" + choiceId]: ability,
+    }));
   }
 
   function changeClassLevel(classId: string, delta: number) {
@@ -643,6 +662,42 @@ export default function App() {
                   </option>
                 ))}
               </select>
+
+              {raceAbilityChoiceList.length > 0 && (
+                <div className="race-choice-panel">
+                  <h3>종족 능력치 선택</h3>
+
+                  {raceAbilityChoiceList.map((choice) => {
+                    const key = race.id + ":" + choice.id;
+                    const selectedAbility =
+                      raceAbilityChoices[key] || choice.defaultAbility || choice.options[0];
+
+                    return (
+                      <div className="race-choice-row" key={choice.id}>
+                        <div>
+                          <strong>{choice.label}</strong>
+                          <p className="muted">
+                            {choice.bonus >= 0 ? "+" + choice.bonus : choice.bonus} 보너스를 적용할 능력치를 선택합니다.
+                          </p>
+                        </div>
+
+                        <select
+                          value={selectedAbility}
+                          onChange={(e) =>
+                            changeRaceAbilityChoice(choice.id, e.target.value as Ability)
+                          }
+                        >
+                          {choice.options.map((ability) => (
+                            <option key={ability} value={ability}>
+                              {abilityNames[ability]}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
 
               <div className="class-manager compact-class-manager">
                 <div className="class-manager-head">

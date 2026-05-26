@@ -4,12 +4,23 @@ export type SaveProgression = "good" | "poor";
 export type BabProgression = "full" | "threeQuarters" | "half";
 export type TabId = "basic" | "skills" | "actions" | "feats" | "spells" | "inventory";
 
+export type SizeCategory = "Tiny" | "Small" | "Medium" | "Large";
+
+export type RaceAbilityChoice = {
+  id: string;
+  label: string;
+  bonus: number;
+  options: Ability[];
+  defaultAbility: Ability;
+};
+
 export type Race = {
   id: string;
   name: string;
-  size: "Small" | "Medium";
+  size: SizeCategory;
   speed: number;
   abilityBonuses: Partial<Record<Ability, number>>;
+  abilityChoices?: RaceAbilityChoice[];
   skillBonuses?: Record<string, number>;
   traits: string[];
 };
